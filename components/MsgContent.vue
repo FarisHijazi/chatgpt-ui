@@ -69,6 +69,19 @@ onMounted(() => {
         v-html="contentHtml"
         class="chat-msg-content pa-3"
     ></div>
+    <template
+        v-if="message.attachments && message.attachments.length > 0"
+    >
+      <v-divider class="mx-4"></v-divider>
+      <v-card-text class="d-flex justify-space-between">
+        <v-chip
+            label
+        >
+          <v-icon start icon="attach_file"></v-icon>
+          {{ message.attachments[0].original_name }}
+        </v-chip>
+      </v-card-text>
+    </template>
   </v-card>
 </template>
 

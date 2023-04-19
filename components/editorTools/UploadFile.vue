@@ -1,19 +1,29 @@
 <script setup>
 const { $i18n } = useNuxtApp()
-const dialog = ref(true)
+const dialog = ref(false)
 const uploading = ref(false)
 const file = ref(null)
 const errorMsg = ref('')
+
+const props = defineProps({
+  updateAttachment: {
+    type: Function,
+    required: true
+  }
+})
+
 const fileChanged = () => {
   errorMsg.value = ''
 }
+
 const upload = async () => {
-  if (file.value === null) {
+  if (file.value.files.length < 1){
     return;
   }
+  const fileObj = file.value.files[0]
   uploading.value = true
   const formData = new FormData()
-  formData.append('file', file.value.files[0])
+  formData.append('file', fileObj)
   const { data, error } = await useAuthFetch('/api/chat/upload/', {
     method: 'POST',
     body: formData,
@@ -22,7 +32,7 @@ const upload = async () => {
     errorMsg.value = $i18n.t('Failed to upload file')
   } else {
     dialog.value = false
-    console.log(data.value)
+    props.updateAttachment(data.value.attachment)
   }
   uploading.value = false
 }

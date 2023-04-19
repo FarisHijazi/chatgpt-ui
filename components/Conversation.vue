@@ -8,6 +8,7 @@ const currentModel = useCurrentModel()
 const openaiApiKey = useApiKey()
 const fetchingResponse = ref(false)
 const messageQueue = []
+const attachment = ref(null)
 let isProcessingQueue = false
 
 const props = defineProps({
@@ -72,7 +73,7 @@ const fetchReply = async (message) => {
     openaiApiKey: $settings.open_api_key_setting === 'True' ? openaiApiKey.value : null,
     message: message,
     conversationId: props.conversation.id,
-    frugalMode: frugalMode.value
+    frugalMode: $settings.open_frugal_mode_control === 'True' && frugalMode.value
   }, webSearchParams)
 
   try {
@@ -151,10 +152,20 @@ const send = (message) => {
   if (props.conversation.messages.length === 0) {
     addConversation(props.conversation)
   }
-  props.conversation.messages.push({message: message})
-  fetchReply(message)
+  let newMessage = {
+    id: null,
+    is_bot: false,
+    message: message
+  }
+  if (attachment.value) {
+    newMessage.attachments = [attachment.value]
+    attachment.value = null
+  }
+  props.conversation.messages.push(newMessage)
+  fetchReply(newMessage)
   scrollChatWindow()
 }
+
 const stop = () => {
   abortFetch()
 }
@@ -173,6 +184,10 @@ const usePrompt = (prompt) => {
 
 const deleteMessage = (index) => {
   props.conversation.messages.splice(index, 1)
+}
+
+const updateAttachment = (file) => {
+  attachment.value = file
 }
 
 onNuxtReady(() => {
@@ -238,6 +253,20 @@ onNuxtReady(() => {
       class="footer"
   >
     <div class="px-md-16 w-100 d-flex flex-column">
+      <div
+          v-if="attachment"
+          class="mb-2"
+      >
+        <v-chip
+            closable
+            color="teal"
+            label
+            @click:close="attachment = null"
+        >
+          <v-icon start icon="attach_file"></v-icon>
+          {{ attachment.original_name }}
+        </v-chip>
+      </div>
       <div class="d-flex align-center">
         <v-btn
             v-show="fetchingResponse"
@@ -252,11 +281,10 @@ onNuxtReady(() => {
           density="comfortable"
           color="transparent"
       >
-        <Prompt v-show="!fetchingResponse" :use-prompt="usePrompt" />
-        <EditorToolsUploadFile />
+        <Prompt :use-prompt="usePrompt" />
+        <EditorToolsUploadFile :update-attachment="updateAttachment" />
         <EditorToolsWebSearch v-if="$settings.open_web_search === 'True'" />
         <EditorToolsFrugalMode v-if="$settings.open_frugal_mode_control === 'True'" />
-
       </v-toolbar>
     </div>
   </v-footer>

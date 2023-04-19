@@ -13,4 +13,4 @@ export const useDrawer = () => useState('drawer', () => false)
 
 export const useEnableWebSearch = () => useState('enableWebSearch', () => false)
 
-export const useFrugalMode = () => useState('frugalMode', () => false)
+export const useFrugalMode = () => useState('frugalMode', () => true)
