@@ -253,6 +253,7 @@ onNuxtReady(() => {
           color="transparent"
       >
         <Prompt v-show="!fetchingResponse" :use-prompt="usePrompt" />
+        <EditorToolsUploadFile />
         <EditorToolsWebSearch v-if="$settings.open_web_search === 'True'" />
         <EditorToolsFrugalMode v-if="$settings.open_frugal_mode_control === 'True'" />
 
