@@ -79,9 +79,11 @@ fi
 
 echo "Starting services..."
 
-mkdir ./db_sqlite3
 
-touch ./db_sqlite3/db.sqlite3
+if [ ! -f "./db.sqlite3" ]; then
+    touch ./db.sqlite3
+fi
+
 
 sudo APP_DOMAIN="${APP_DOMAIN}:${SERVER_PORT}" CLIENT_PORT=${CLIENT_PORT} SERVER_PORT=${SERVER_PORT} WSGI_PORT=${WSGI_PORT} DB_URL=${DATABASE_URL}  $DOCKER_COMPOSE_CMD up -d
 
